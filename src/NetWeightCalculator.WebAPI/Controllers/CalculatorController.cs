@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NetWeightCalculator.DTOs;
+using NetWeightCalculator.Services.CalculatorServices;
+using System.Linq;
 
 namespace NetWeightCalculator.WebAPI.Controllers
 {
@@ -7,19 +9,18 @@ namespace NetWeightCalculator.WebAPI.Controllers
     [ApiController]
     public class CalculatorController : ControllerBase
     {
+        private readonly ICalculatorService calculatorService;
+
+        public CalculatorController(ICalculatorService calculatorService)
+        {
+            this.calculatorService = calculatorService;
+        }
+
         [HttpPost]
         [Route("calculate-taxes")]
         public TaxesResponseModel Calculate(PayerRequestModel model)
-        {
-            return new TaxesResponseModel()
-            {
-                GrossIncome = 3700,
-                CharitySpent = 500,
-                IncomeTax = 370,
-                SocialTax = 500,
-                TotalTax = 870,
-                NetIncome = 2830
-            };
+        {            
+            return calculatorService.Calculate(model);
         }
     }
 }

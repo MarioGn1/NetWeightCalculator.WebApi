@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NetWeightCalculator.DTOs\NetWeightCalculator.DTOs.csproj" />
+    <ProjectReference Include="..\NetWeightCalculator.Services\NetWeightCalculator.Services.csproj" />
   </ItemGroup>
 
 </Project>
