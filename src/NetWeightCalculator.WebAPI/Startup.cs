@@ -47,6 +47,8 @@ namespace NetWeightCalculator.WebAPI
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NetWeightCalculator.WebAPI", Version = "v1" });
             });
 
+            services.AddMemoryCache();
+
             services.AddTransient<ICalculatorService, CalculatorService>();
         }
 

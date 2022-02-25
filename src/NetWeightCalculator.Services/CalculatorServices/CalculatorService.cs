@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Localization;
 using NetWeightCalculator.DTOs;
+using System.Globalization;
 
 namespace NetWeightCalculator.Services.CalculatorServices
 {
     public class CalculatorService : ICalculatorService
-    {      
+    {
         public TaxesResponseModel Calculate(PayerRequestModel model, JurisdictionTaxModel taxModel)
         {
             TaxesResponseModel result = new TaxesResponseModel();
@@ -34,11 +35,11 @@ namespace NetWeightCalculator.Services.CalculatorServices
 
         public JurisdictionTaxModel GetTaxModel(IStringLocalizer localizer)
         {
-            decimal taxFreeAmount = decimal.Parse(localizer["taxFreeAmount"]);
-            decimal incomeTax = decimal.Parse(localizer["incomeTax"]);
-            decimal socialContributionsTax = decimal.Parse(localizer["socialContributionsTax"]);
-            decimal socialContributionsUperLimit = decimal.Parse(localizer["socialContributionsUperLimit"]);
-            decimal charitySpentMaxPercentage = decimal.Parse(localizer["charitySpentMaxPercentage"]);
+            decimal taxFreeAmount = decimal.Parse(localizer["taxFreeAmount"], CultureInfo.InvariantCulture);
+            decimal incomeTax = decimal.Parse(localizer["incomeTax"], CultureInfo.InvariantCulture);
+            decimal socialContributionsTax = decimal.Parse(localizer["socialContributionsTax"], CultureInfo.InvariantCulture);
+            decimal socialContributionsUperLimit = decimal.Parse(localizer["socialContributionsUperLimit"], CultureInfo.InvariantCulture);
+            decimal charitySpentMaxPercentage = decimal.Parse(localizer["charitySpentMaxPercentage"], CultureInfo.InvariantCulture);
 
 
             return new JurisdictionTaxModel(

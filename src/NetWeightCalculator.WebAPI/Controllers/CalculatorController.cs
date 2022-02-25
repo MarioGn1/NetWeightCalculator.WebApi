@@ -2,9 +2,10 @@
 using Microsoft.Extensions.Localization;
 using NetWeightCalculator.DTOs;
 using NetWeightCalculator.Services.CalculatorServices;
-using System.Linq;
-using System.Globalization;
-using System.Threading;
+using System;
+using Microsoft.Extensions.Caching.Memory;
+
+using static NetWeightCalculator.WebAPI.WebApiConstants.Cache;
 
 namespace NetWeightCalculator.WebAPI.Controllers
 {
@@ -14,12 +15,18 @@ namespace NetWeightCalculator.WebAPI.Controllers
     {
         private readonly ICalculatorService calculatorService;
         private readonly IStringLocalizer<CalculatorController> localizer;
+        private readonly IMemoryCache cache;
+        private JurisdictionTaxModel taxModel;
+        private TaxesResponseModel responceModel;
 
-        public CalculatorController(ICalculatorService calculatorService,
-            IStringLocalizer<CalculatorController> localizer)
+        public CalculatorController(
+                ICalculatorService calculatorService,
+                IStringLocalizer<CalculatorController> localizer,
+                IMemoryCache cache)
         {
             this.calculatorService = calculatorService;
             this.localizer = localizer;
+            this.cache = cache;
         }
 
         [HttpPost]
@@ -28,14 +35,37 @@ namespace NetWeightCalculator.WebAPI.Controllers
         {
             try
             {
-                var taxModel = calculatorService.GetTaxModel(localizer);
-                var responceModel = calculatorService.Calculate(payerModel, taxModel);
-                return responceModel;
+                taxModel = calculatorService.GetTaxModel(localizer);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-                return BadRequest("Server failed to calculate the requested data.");
-            }       
+                return BadRequest("Failed to establish the choosen jurisdiction tax rates.");
+            }
+            try
+            {
+                responceModel = calculatorService.Calculate(payerModel, taxModel);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Failed to caculate requested data.");
+            }
+
+            CachingPayer(payerModel);
+
+            return responceModel;
+        }
+
+        private void CachingPayer(PayerRequestModel payerModel)
+        {
+            var payerModelInCache = this.cache.Get<PayerRequestModel>(PayerCacheKey);
+
+            if (payerModelInCache == null)
+            {
+                var cacheOptions = new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
+
+                this.cache.Set(PayerCacheKey, payerModel, cacheOptions);
+            }
         }
     }
 }
