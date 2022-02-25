@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Localization;
-using NetWeightCalculator.DTOs;
+using NetWeightCalculator.DTOs.Models;
 using System.Globalization;
 
 namespace NetWeightCalculator.Services.CalculatorServices

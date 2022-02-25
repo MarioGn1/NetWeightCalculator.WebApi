@@ -1,4 +1,4 @@
-﻿namespace NetWeightCalculator.DTOs
+﻿namespace NetWeightCalculator.DTOs.Models
 {
     public class TaxesResponseModel
     {

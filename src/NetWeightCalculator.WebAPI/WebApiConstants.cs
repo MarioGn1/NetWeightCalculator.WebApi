@@ -1,10 +1,11 @@
 ﻿namespace NetWeightCalculator.WebAPI
 {
-    public static class WebApiConstants
+    internal static class WebApiConstants
     {
-        public class Cache
+        internal class BadRequestMessages
         {
-            public const string PayerCacheKey = nameof(PayerCacheKey);
+            public const string TAX_RATES_FAILED_TO_LOAD = "Failed to establish the choosen jurisdiction tax rates.";
+            public const string CALCULATION_FAILED = "Failed to caculate requested data.";
         }
     }
 }

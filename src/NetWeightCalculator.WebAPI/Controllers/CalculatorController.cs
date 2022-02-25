@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
-using NetWeightCalculator.DTOs;
+using NetWeightCalculator.DTOs.Models;
 using NetWeightCalculator.Services.CalculatorServices;
 using System;
 using Microsoft.Extensions.Caching.Memory;
 
-using static NetWeightCalculator.WebAPI.WebApiConstants.Cache;
+using static NetWeightCalculator.WebAPI.WebApiConstants.BadRequestMessages;
 
 namespace NetWeightCalculator.WebAPI.Controllers
 {
@@ -39,7 +39,7 @@ namespace NetWeightCalculator.WebAPI.Controllers
             }
             catch (Exception)
             {
-                return BadRequest("Failed to establish the choosen jurisdiction tax rates.");
+                return BadRequest(TAX_RATES_FAILED_TO_LOAD);
             }
             try
             {
@@ -47,24 +47,24 @@ namespace NetWeightCalculator.WebAPI.Controllers
             }
             catch (Exception)
             {
-                return BadRequest("Failed to caculate requested data.");
+                return BadRequest(CALCULATION_FAILED);
             }
 
-            CachingPayer(payerModel);
+            CachingPayerData(payerModel);
 
             return responceModel;
         }
 
-        private void CachingPayer(PayerRequestModel payerModel)
+        private void CachingPayerData(PayerRequestModel payerModel)
         {
-            var payerModelInCache = this.cache.Get<PayerRequestModel>(PayerCacheKey);
+            var payerModelInCache = this.cache.Get<PayerRequestModel>(payerModel.SSN);
 
             if (payerModelInCache == null)
             {
                 var cacheOptions = new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
 
-                this.cache.Set(PayerCacheKey, payerModel, cacheOptions);
+                this.cache.Set(payerModel.SSN, payerModel, cacheOptions);
             }
         }
     }
