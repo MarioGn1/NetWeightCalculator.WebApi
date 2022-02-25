@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="6.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NetWeightCalculator.DTOs\NetWeightCalculator.DTOs.csproj" />
   </ItemGroup>
 

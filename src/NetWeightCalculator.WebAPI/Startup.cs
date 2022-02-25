@@ -1,17 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NetWeightCalculator.Services.CalculatorServices;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Globalization;
 
 namespace NetWeightCalculator.WebAPI
 {
@@ -24,9 +20,26 @@ namespace NetWeightCalculator.WebAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services
+                .AddLocalization(options => options.ResourcesPath = "Resources");
+
+            services
+                .Configure<RequestLocalizationOptions>(options =>
+                {
+                    var supportedCultures = new[]
+                    {
+                                    new CultureInfo("en"),
+                                    new CultureInfo("bg")
+                    };
+
+                    options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
+
+                    options.SupportedCultures = supportedCultures;
+
+                    options.SupportedUICultures = supportedCultures;
+                });
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
@@ -37,9 +50,11 @@ namespace NetWeightCalculator.WebAPI
             services.AddTransient<ICalculatorService, CalculatorService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+            app.UseRequestLocalization(locOptions.Value);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

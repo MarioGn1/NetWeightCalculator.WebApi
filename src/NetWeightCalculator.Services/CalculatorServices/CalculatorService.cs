@@ -1,24 +1,19 @@
-﻿using NetWeightCalculator.DTOs;
+﻿using Microsoft.Extensions.Localization;
+using NetWeightCalculator.DTOs;
 
 namespace NetWeightCalculator.Services.CalculatorServices
 {
     public class CalculatorService : ICalculatorService
-    {
-        private const decimal taxFreeAmount = 1000;
-        private const decimal incomeTax = 0.1M;
-        private const decimal socialContributionsTax = 0.15M;
-        private const decimal socialContributionsUperLimit = 3000;
-        private const decimal charitySpentMaxPercentage = 0.1M;
-
-
-        public TaxesResponseModel Calculate(PayerRequestModel model)
+    {      
+        public TaxesResponseModel Calculate(PayerRequestModel model, JurisdictionTaxModel taxModel)
         {
-            TaxesResponseModel result = new TaxesResponseModel();            
-            
-            if (model.GrossIncome <= taxFreeAmount)
+            TaxesResponseModel result = new TaxesResponseModel();
+
+            result.GrossIncome = model.GrossIncome;
+            result.CharitySpent = model.CharitySpent;
+
+            if (model.GrossIncome <= taxModel.TaxFreeAmount)
             {
-                result.GrossIncome = model.GrossIncome;
-                result.CharitySpent = model.CharitySpent;
                 result.IncomeTax = 0;
                 result.SocialTax = 0;
                 result.TotalTax = 0;
@@ -26,12 +21,10 @@ namespace NetWeightCalculator.Services.CalculatorServices
             }
             else
             {
-                decimal taxBase = GetPayerTaxBase(model.GrossIncome, model.CharitySpent);
+                decimal taxBase = GetPayerTaxBase(model.GrossIncome, model.CharitySpent, taxModel);
 
-                result.GrossIncome = model.GrossIncome;
-                result.CharitySpent = model.CharitySpent;
-                result.IncomeTax = GetIncomeTax(taxBase);
-                result.SocialTax = GetSocialContributionsTax(taxBase);
+                result.IncomeTax = GetIncomeTax(taxBase, taxModel);
+                result.SocialTax = GetSocialContributionsTax(taxBase, taxModel);
                 result.TotalTax = result.IncomeTax + result.SocialTax;
                 result.NetIncome = model.GrossIncome - result.TotalTax;
             }
@@ -39,38 +32,56 @@ namespace NetWeightCalculator.Services.CalculatorServices
             return result;
         }
 
-        private decimal GetIncomeTax(decimal taxBase)
+        public JurisdictionTaxModel GetTaxModel(IStringLocalizer localizer)
         {
-            return taxBase * incomeTax;
+            decimal taxFreeAmount = decimal.Parse(localizer["taxFreeAmount"]);
+            decimal incomeTax = decimal.Parse(localizer["incomeTax"]);
+            decimal socialContributionsTax = decimal.Parse(localizer["socialContributionsTax"]);
+            decimal socialContributionsUperLimit = decimal.Parse(localizer["socialContributionsUperLimit"]);
+            decimal charitySpentMaxPercentage = decimal.Parse(localizer["charitySpentMaxPercentage"]);
+
+
+            return new JurisdictionTaxModel(
+                    taxFreeAmount,
+                    incomeTax,
+                    socialContributionsTax,
+                    socialContributionsUperLimit,
+                    charitySpentMaxPercentage
+                );
         }
 
-        private decimal GetSocialContributionsTax(decimal taxBase)
+        private decimal GetIncomeTax(decimal taxBase, JurisdictionTaxModel taxModel)
         {
-            decimal socialTaxBaseMax = socialContributionsUperLimit - taxFreeAmount;
+            return taxBase * taxModel.IncomeTax;
+        }
+
+        private decimal GetSocialContributionsTax(decimal taxBase, JurisdictionTaxModel taxModel)
+        {
+            decimal socialTaxBaseMax = taxModel.SocialContributionsUperLimit - taxModel.TaxFreeAmount;
 
             if (taxBase > socialTaxBaseMax)
             {
-                return socialTaxBaseMax * socialContributionsTax;
+                return socialTaxBaseMax * taxModel.SocialContributionsTax;
             }
 
-            return taxBase * socialContributionsTax;
+            return taxBase * taxModel.SocialContributionsTax;
         }
 
 
-        private decimal GetPayerTaxBase(decimal grossAmount, decimal? charitySpent)
+        private decimal GetPayerTaxBase(decimal grossAmount, decimal? charitySpent, JurisdictionTaxModel taxModel)
         {
-            decimal taxBase = grossAmount - taxFreeAmount;
+            decimal taxBase = grossAmount - taxModel.TaxFreeAmount;
 
             if (charitySpent == null || charitySpent == 0)
             {
                 return taxBase;
             }
-            
+
             decimal charitySpentPercentage = (decimal)charitySpent / grossAmount;
 
-            if (charitySpentPercentage > charitySpentMaxPercentage)
+            if (charitySpentPercentage > taxModel.CharitySpentMaxPercentage)
             {
-                return taxBase - (grossAmount * charitySpentMaxPercentage);
+                return taxBase - (grossAmount * taxModel.CharitySpentMaxPercentage);
             }
 
             return taxBase - (decimal)charitySpent;
