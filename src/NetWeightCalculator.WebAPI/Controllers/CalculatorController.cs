@@ -5,7 +5,7 @@ using NetWeightCalculator.Services.CalculatorServices;
 using System;
 using Microsoft.Extensions.Caching.Memory;
 
-using static NetWeightCalculator.WebAPI.WebApiConstants.BadRequestMessages;
+using static NetWeightCalculator.WebAPI.WebApiConstants.BadOperationMessages;
 
 namespace NetWeightCalculator.WebAPI.Controllers
 {
@@ -35,36 +35,32 @@ namespace NetWeightCalculator.WebAPI.Controllers
         {
             try
             {
+                CachingPayerData(payerModel);
                 taxModel = calculatorService.GetTaxModel(localizer);
-            }
-            catch (Exception)
-            {
-                return BadRequest(TAX_RATES_FAILED_TO_LOAD);
-            }
-            try
-            {
                 responceModel = calculatorService.Calculate(payerModel, taxModel);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return BadRequest(CALCULATION_FAILED);
-            }
-
-            CachingPayerData(payerModel);
+                return BadRequest(e.Message);
+            }         
 
             return responceModel;
         }
 
         private void CachingPayerData(PayerRequestModel payerModel)
         {
-            var payerModelInCache = this.cache.Get<PayerRequestModel>(payerModel.SSN);
+            var payerCacheModel = this.cache.Get<PayerRequestModel>(payerModel.SSN);
 
-            if (payerModelInCache == null)
+            if (payerCacheModel == null)
             {
                 var cacheOptions = new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
 
                 this.cache.Set(payerModel.SSN, payerModel, cacheOptions);
+            }
+            else if (!payerModel.Equals(payerCacheModel))
+            {
+                throw new InvalidOperationException(INVALID_PERSONAL_DATA_INPUT);
             }
         }
     }

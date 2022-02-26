@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Localization;
 using NetWeightCalculator.DTOs.Models;
+using System;
 using System.Globalization;
+
+using static NetWeightCalculator.Services.ServicesConstants.BadOperationMessages;
 
 namespace NetWeightCalculator.Services.CalculatorServices
 {
@@ -22,12 +25,19 @@ namespace NetWeightCalculator.Services.CalculatorServices
             }
             else
             {
-                decimal taxBase = GetPayerTaxBase(model.GrossIncome, model.CharitySpent, taxModel);
+                try
+                {
+                    decimal taxBase = GetPayerTaxBase(model.GrossIncome, model.CharitySpent, taxModel);
 
-                result.IncomeTax = GetIncomeTax(taxBase, taxModel);
-                result.SocialTax = GetSocialContributionsTax(taxBase, taxModel);
-                result.TotalTax = result.IncomeTax + result.SocialTax;
-                result.NetIncome = model.GrossIncome - result.TotalTax;
+                    result.IncomeTax = GetIncomeTax(taxBase, taxModel);
+                    result.SocialTax = GetSocialContributionsTax(taxBase, taxModel);
+                    result.TotalTax = result.IncomeTax + result.SocialTax;
+                    result.NetIncome = model.GrossIncome - result.TotalTax;
+                }
+                catch (Exception)
+                {
+                    throw new InvalidOperationException(CALCULATION_FAILED);
+                }
             }
 
             return result;
@@ -35,20 +45,26 @@ namespace NetWeightCalculator.Services.CalculatorServices
 
         public JurisdictionTaxModel GetTaxModel(IStringLocalizer localizer)
         {
-            decimal taxFreeAmount = decimal.Parse(localizer["taxFreeAmount"], CultureInfo.InvariantCulture);
-            decimal incomeTax = decimal.Parse(localizer["incomeTax"], CultureInfo.InvariantCulture);
-            decimal socialContributionsTax = decimal.Parse(localizer["socialContributionsTax"], CultureInfo.InvariantCulture);
-            decimal socialContributionsUperLimit = decimal.Parse(localizer["socialContributionsUperLimit"], CultureInfo.InvariantCulture);
-            decimal charitySpentMaxPercentage = decimal.Parse(localizer["charitySpentMaxPercentage"], CultureInfo.InvariantCulture);
+            try
+            {
+                decimal taxFreeAmount = decimal.Parse(localizer["taxFreeAmount"], CultureInfo.InvariantCulture);
+                decimal incomeTax = decimal.Parse(localizer["incomeTax"], CultureInfo.InvariantCulture);
+                decimal socialContributionsTax = decimal.Parse(localizer["socialContributionsTax"], CultureInfo.InvariantCulture);
+                decimal socialContributionsUperLimit = decimal.Parse(localizer["socialContributionsUperLimit"], CultureInfo.InvariantCulture);
+                decimal charitySpentMaxPercentage = decimal.Parse(localizer["charitySpentMaxPercentage"], CultureInfo.InvariantCulture);
 
-
-            return new JurisdictionTaxModel(
+                return new JurisdictionTaxModel(
                     taxFreeAmount,
                     incomeTax,
                     socialContributionsTax,
                     socialContributionsUperLimit,
                     charitySpentMaxPercentage
                 );
+            }
+            catch (Exception)
+            {
+                throw new InvalidOperationException(TAX_RATES_FAILED_TO_LOAD);
+            }
         }
 
         private decimal GetIncomeTax(decimal taxBase, JurisdictionTaxModel taxModel)
