@@ -14,7 +14,7 @@ namespace NetWeightCalculator.Test.Controllers
         public void PostCalculateShouldReturnTaxResponceModel()
             => MyController<CalculatorController>
             .Instance()
-            .Calling(x => x.Calculate(ValidPayerData))
+            .Calling(x => x.Calculate(ValidPayerDataGrossAndCharityAboveLimits))
             .ShouldHave()
             .ActionAttributes(attributes => attributes
                     .RestrictingForHttpMethod(HttpMethod.Post))

@@ -2,6 +2,10 @@
 {
     public class JurisdictionTaxModel
     {
+        public JurisdictionTaxModel()
+        {
+
+        }
         public JurisdictionTaxModel(
             decimal taxFreeAmount, 
             decimal incomeTax, 

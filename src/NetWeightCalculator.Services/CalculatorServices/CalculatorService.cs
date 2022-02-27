@@ -2,7 +2,6 @@
 using NetWeightCalculator.DTOs.Models;
 using System;
 using System.Globalization;
-
 using static NetWeightCalculator.Services.ServicesConstants.BadOperationMessages;
 
 namespace NetWeightCalculator.Services.CalculatorServices
@@ -16,16 +15,16 @@ namespace NetWeightCalculator.Services.CalculatorServices
             result.GrossIncome = model.GrossIncome;
             result.CharitySpent = model.CharitySpent;
 
-            if (model.GrossIncome <= taxModel.TaxFreeAmount)
+            try
             {
-                result.IncomeTax = 0;
-                result.SocialTax = 0;
-                result.TotalTax = 0;
-                result.NetIncome = model.GrossIncome;
-            }
-            else
-            {
-                try
+                if (model.GrossIncome <= taxModel.TaxFreeAmount)
+                {
+                    result.IncomeTax = 0;
+                    result.SocialTax = 0;
+                    result.TotalTax = 0;
+                    result.NetIncome = model.GrossIncome;
+                }
+                else
                 {
                     decimal taxBase = GetPayerTaxBase(model.GrossIncome, model.CharitySpent, taxModel);
 
@@ -34,11 +33,12 @@ namespace NetWeightCalculator.Services.CalculatorServices
                     result.TotalTax = result.IncomeTax + result.SocialTax;
                     result.NetIncome = model.GrossIncome - result.TotalTax;
                 }
-                catch (Exception)
-                {
-                    throw new InvalidOperationException(CALCULATION_FAILED);
-                }
             }
+            catch (Exception)
+            {
+                throw new InvalidOperationException(CALCULATION_FAILED);
+            }
+
 
             return result;
         }
@@ -85,9 +85,9 @@ namespace NetWeightCalculator.Services.CalculatorServices
         }
 
 
-        private decimal GetPayerTaxBase(decimal grossAmount, decimal? charitySpent, JurisdictionTaxModel taxModel)
+        private decimal GetPayerTaxBase(decimal grossAmount, decimal? charitySpent, JurisdictionTaxModel jurisdictionTaxModel)
         {
-            decimal taxBase = grossAmount - taxModel.TaxFreeAmount;
+            decimal taxBase = grossAmount - jurisdictionTaxModel.TaxFreeAmount;
 
             if (charitySpent == null || charitySpent == 0)
             {
@@ -96,13 +96,16 @@ namespace NetWeightCalculator.Services.CalculatorServices
 
             decimal charitySpentPercentage = (decimal)charitySpent / grossAmount;
 
-            if (charitySpentPercentage > taxModel.CharitySpentMaxPercentage)
+            if (charitySpentPercentage > jurisdictionTaxModel.CharitySpentMaxPercentage)
             {
-                return taxBase - (grossAmount * taxModel.CharitySpentMaxPercentage);
+                return taxBase - (grossAmount * jurisdictionTaxModel.CharitySpentMaxPercentage);
             }
 
             return taxBase - (decimal)charitySpent;
         }
-
     }
 }
+
+
+
+
