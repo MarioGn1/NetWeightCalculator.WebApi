@@ -7,7 +7,7 @@ using static NetWeightCalculator.Test.Mocks.Payer;
 using System;
 
 namespace NetWeightCalculator.Test.Controllers
-{    
+{
     public class CalculatorControllerTest
     {
         [Fact]
@@ -21,7 +21,7 @@ namespace NetWeightCalculator.Test.Controllers
             .ValidModelState()
             .AndAlso()
             .ShouldReturn()
-            .Object(x => 
+            .Object(x =>
                 x.WithModelOfType<TaxesResponseModel>());
 
         [Fact]
@@ -37,7 +37,7 @@ namespace NetWeightCalculator.Test.Controllers
         [InlineData(12345, "Test", "1987-01-20", 3600, 520)]
         [InlineData(12345, "Test Testov", "1987-01-20", 3600.001, 520)]
         [InlineData(12345, "Test Testov", "1987-01-20", 3600, -1)]
-        public void PostCalculateShouldReturnBadRequestWhenPayerWrongData(
+        public void PostCalculateInvalidModelState(
             int ssn,
             string fullName,
             DateTime dateofBirth,
@@ -56,5 +56,40 @@ namespace NetWeightCalculator.Test.Controllers
                 }))
             .ShouldHave()
             .InvalidModelState();
+
+        [Theory]
+        [InlineData(12345, "Test Testov", "1987-01-20", 3600, 520)]
+        public void PostCalculateAlreadyExistOrWrongInput(
+            int ssn,
+            string fullName,
+            DateTime dateofBirth,
+            decimal grossIncome,
+            decimal charitySpent)
+            => MyController<CalculatorController>
+            .Instance()
+            .WithMemoryCache(cache => cache
+                .WithEntry(ssn, new PayerRequestModel
+                {
+                    SSN = ssn,
+                    FullName = fullName,
+                    DateOfBirth = dateofBirth,
+                    GrossIncome = grossIncome,
+                    CharitySpent = charitySpent
+                }))
+            .Calling(x =>
+                x.Calculate(new PayerRequestModel
+                {
+                    SSN = ssn,
+                    FullName = "Test Testo",
+                    DateOfBirth = dateofBirth,
+                    GrossIncome = grossIncome,
+                    CharitySpent = charitySpent
+                }))
+            .ShouldHave()
+            .MemoryCache(cache => cache
+                .ContainingEntry(entry => entry.WithKey(ssn)))
+            .AndAlso()
+            .ShouldReturn()
+            .BadRequest();
     }
 }
