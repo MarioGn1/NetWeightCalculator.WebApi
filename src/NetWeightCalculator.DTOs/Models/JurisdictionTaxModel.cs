@@ -2,15 +2,11 @@
 {
     public class JurisdictionTaxModel
     {
-        public JurisdictionTaxModel()
-        {
-
-        }
-        public JurisdictionTaxModel(
-            decimal taxFreeAmount, 
-            decimal incomeTax, 
-            decimal socialContributionsTax, 
-            decimal socialContributionsUperLimit, 
+        protected JurisdictionTaxModel(
+            decimal taxFreeAmount,
+            decimal incomeTax,
+            decimal socialContributionsTax,
+            decimal socialContributionsUperLimit,
             decimal charitySpentMaxPercentage)
         {
             TaxFreeAmount = taxFreeAmount;
@@ -26,6 +22,12 @@
         public decimal SocialContributionsUperLimit { get; private set; }
         public decimal CharitySpentMaxPercentage { get; private set; }
 
-
+        public static JurisdictionTaxModel From(
+            decimal taxFreeAmount,
+            decimal incomeTax,
+            decimal socialContributionsTax,
+            decimal socialContributionsUperLimit,
+            decimal charitySpentMaxPercentage)
+            => new(taxFreeAmount, incomeTax, socialContributionsTax, socialContributionsUperLimit, charitySpentMaxPercentage);
     }
 }

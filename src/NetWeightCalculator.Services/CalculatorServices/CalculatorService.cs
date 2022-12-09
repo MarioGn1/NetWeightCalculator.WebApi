@@ -1,78 +1,59 @@
-﻿using Microsoft.Extensions.Localization;
-using NetWeightCalculator.DTOs.Models;
+﻿using NetWeightCalculator.Services.Models;
 using System;
-using System.Globalization;
+using System.Linq;
 using static NetWeightCalculator.Services.ServicesConstants.BadOperationMessages;
 
 namespace NetWeightCalculator.Services.CalculatorServices
 {
     public class CalculatorService : ICalculatorService
     {
-        public TaxesResponseModel Calculate(PayerRequestModel model, JurisdictionTaxModel taxModel)
-        {
-            TaxesResponseModel result = new TaxesResponseModel();
+        private readonly TaxRates _taxRates;
 
-            result.GrossIncome = model.GrossIncome;
-            result.CharitySpent = model.CharitySpent;
+        public CalculatorService(TaxRates taxRates)
+        {
+            _taxRates = taxRates;
+        }
+
+        public TaxesDto Calculate(PayerDto model)
+        {
+            var requiredTaxes = _taxRates.Jurisdictions.FirstOrDefault(x => x.Country == model.Country);
 
             try
             {
-                if (model.GrossIncome <= taxModel.TaxFreeAmount)
+                if (model.GrossIncome <= requiredTaxes.TaxFreeAmount)
                 {
-                    result.IncomeTax = 0;
-                    result.SocialTax = 0;
-                    result.TotalTax = 0;
-                    result.NetIncome = model.GrossIncome;
+                    return TaxesDto.NoCharges(model.GrossIncome, model.CharitySpent, model.GrossIncome);
                 }
                 else
                 {
-                    decimal taxBase = GetPayerTaxBase(model.GrossIncome, model.CharitySpent, taxModel);
+                    decimal taxBase = GetPayerTaxBase(model.GrossIncome, model.CharitySpent, requiredTaxes);
 
-                    result.IncomeTax = GetIncomeTax(taxBase, taxModel);
-                    result.SocialTax = GetSocialContributionsTax(taxBase, taxModel);
-                    result.TotalTax = result.IncomeTax + result.SocialTax;
-                    result.NetIncome = model.GrossIncome - result.TotalTax;
+                    var incomeTax = GetIncomeTax(taxBase, requiredTaxes);
+                    var socialTax = GetSocialContributionsTax(taxBase, requiredTaxes);
+                    var totalTax = incomeTax + socialTax;
+                    var netIncome = model.GrossIncome - totalTax;
+
+                    return TaxesDto.ApplyCharges(
+                        model.GrossIncome,
+                        model.CharitySpent,
+                        netIncome,
+                        incomeTax,
+                        socialTax,
+                        totalTax);
                 }
             }
             catch (Exception)
             {
                 throw new InvalidOperationException(CALCULATION_FAILED);
             }
-
-
-            return result;
         }
 
-        public JurisdictionTaxModel GetTaxModel(IStringLocalizer localizer)
-        {
-            try
-            {
-                decimal taxFreeAmount = decimal.Parse(localizer["taxFreeAmount"], CultureInfo.InvariantCulture);
-                decimal incomeTax = decimal.Parse(localizer["incomeTax"], CultureInfo.InvariantCulture);
-                decimal socialContributionsTax = decimal.Parse(localizer["socialContributionsTax"], CultureInfo.InvariantCulture);
-                decimal socialContributionsUperLimit = decimal.Parse(localizer["socialContributionsUperLimit"], CultureInfo.InvariantCulture);
-                decimal charitySpentMaxPercentage = decimal.Parse(localizer["charitySpentMaxPercentage"], CultureInfo.InvariantCulture);
-
-                return new JurisdictionTaxModel(
-                    taxFreeAmount,
-                    incomeTax,
-                    socialContributionsTax,
-                    socialContributionsUperLimit,
-                    charitySpentMaxPercentage
-                );
-            }
-            catch (Exception)
-            {
-                throw new InvalidOperationException(TAX_RATES_FAILED_TO_LOAD);
-            }
-        }
-
-        private decimal GetIncomeTax(decimal taxBase, JurisdictionTaxModel taxModel)
+        private decimal GetIncomeTax(decimal taxBase, Jurisdiction taxModel)
         {
             return taxBase * taxModel.IncomeTax;
         }
 
-        private decimal GetSocialContributionsTax(decimal taxBase, JurisdictionTaxModel taxModel)
+        private decimal GetSocialContributionsTax(decimal taxBase, Jurisdiction taxModel)
         {
             decimal socialTaxBaseMax = taxModel.SocialContributionsUperLimit - taxModel.TaxFreeAmount;
 
@@ -85,7 +66,7 @@ namespace NetWeightCalculator.Services.CalculatorServices
         }
 
 
-        private decimal GetPayerTaxBase(decimal grossAmount, decimal? charitySpent, JurisdictionTaxModel jurisdictionTaxModel)
+        private decimal GetPayerTaxBase(decimal grossAmount, decimal? charitySpent, Jurisdiction jurisdictionTaxModel)
         {
             decimal taxBase = grossAmount - jurisdictionTaxModel.TaxFreeAmount;
 

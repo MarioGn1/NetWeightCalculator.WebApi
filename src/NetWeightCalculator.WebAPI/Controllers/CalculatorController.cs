@@ -16,7 +16,6 @@ namespace NetWeightCalculator.WebAPI.Controllers
         private readonly ICalculatorService calculatorService;
         private readonly IStringLocalizer<CalculatorController> localizer;
         private readonly IMemoryCache cache;
-        private JurisdictionTaxModel taxModel;
         private TaxesResponseModel responceModel;
 
         public CalculatorController(
@@ -36,7 +35,6 @@ namespace NetWeightCalculator.WebAPI.Controllers
             try
             {
                 CachingPayerData(payerModel);
-                taxModel = calculatorService.GetTaxModel(localizer);
                 responceModel = calculatorService.Calculate(payerModel, taxModel);
             }
             catch (Exception e)
