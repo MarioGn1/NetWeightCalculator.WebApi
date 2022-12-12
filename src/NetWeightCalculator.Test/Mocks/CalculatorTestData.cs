@@ -1,4 +1,5 @@
-﻿using NetWeightCalculator.DTOs.Models;
+﻿using NetWeightCalculator.Services.Models;
+using NetWeightCalculator.WebAPI.Models;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -10,40 +11,34 @@ namespace NetWeightCalculator.Test.Mocks
     {
         public IEnumerator<object[]> GetEnumerator()
         {
-            yield return new object[] 
-            { 
-                ValidPayerDataGrossAndCharityAboveLimits, 
-                ValidJurisdictionTaxModel, 
-                CalculatedTaxesGrossAndCharityAboveLimits 
+            yield return new object[]
+            {
+                ValidPayerDataGrossAndCharityAboveLimits,
+                CalculatedTaxesGrossAndCharityAboveLimits
             };
             yield return new object[]
             {
                 ValidPayerDataGrossBellowLimits,
-                ValidJurisdictionTaxModel,
-                CalculatedTaxesGrossBellowLimit 
+                CalculatedTaxesGrossBellowLimit
             };
             yield return new object[]
             {
                 ValidPayerDataZeroCharity,
-                ValidJurisdictionTaxModel,
                 CalculatedTaxesZeroCharity
             };
             yield return new object[]
             {
                 ValidPayerDataNullCharity,
-                ValidJurisdictionTaxModel,
                 CalculatedTaxesNullCharity
             };
             yield return new object[]
             {
                 ValidPayerDataGrossAndCharityBellowLimits,
-                ValidJurisdictionTaxModel,
                 CalculatedTaxesGrossAndCharityBellowLimits
             };
             yield return new object[]
             {
                 ValidPayerDataGrossBellowLimitsCharityNull,
-                ValidJurisdictionTaxModel,
                 CalculatedTaxesGrossBellowLimitsCharityNull
             };
         }
@@ -53,74 +48,22 @@ namespace NetWeightCalculator.Test.Mocks
             return GetEnumerator();
         }
 
-        public static TaxesResponseModel CalculatedTaxesGrossAndCharityAboveLimits
-           => new TaxesResponseModel
-           {
-               GrossIncome = 3600M,
-               CharitySpent = 520M,
-               IncomeTax = 224.00M,
-               SocialTax = 300.00M,
-               TotalTax = 524.00M,
-               NetIncome = 3076.00M
-           };
+        public static CalculateTaxesResponseModel CalculatedTaxesGrossAndCharityAboveLimits
+           => new CalculateTaxesResponseModel(3600M, 520M, 224.00M, 300.00M, 524.00M, 3076.00M);
 
-        public static TaxesResponseModel CalculatedTaxesGrossAndCharityBellowLimits
-            => new TaxesResponseModel
-            {
-                GrossIncome = 2500M,
-                CharitySpent = 150M,
-                IncomeTax = 135.00M,
-                SocialTax = 202.50M,
-                TotalTax = 337.50M,
-                NetIncome = 2162.50M
-            };
+        public static CalculateTaxesResponseModel CalculatedTaxesGrossAndCharityBellowLimits
+            => new CalculateTaxesResponseModel(2500M, 150M, 135.00M, 202.50M, 337.50M, 2162.50M);
 
-        public static TaxesResponseModel CalculatedTaxesGrossBellowLimitsCharityNull
-            => new TaxesResponseModel
-            {
-                GrossIncome = 2500M,
-                CharitySpent = null,
-                IncomeTax = 150.00M,
-                SocialTax = 225.00M,
-                TotalTax = 375.00M,
-                NetIncome = 2125.00M
-            };
+        public static CalculateTaxesResponseModel CalculatedTaxesGrossBellowLimitsCharityNull
+            => new CalculateTaxesResponseModel(2500M, null, 150.00M, 225.00M, 375.00M, 2125.00M);
 
-        public static TaxesResponseModel CalculatedTaxesGrossBellowLimit
-            => new TaxesResponseModel
-            {
-                GrossIncome = 1000M,
-                CharitySpent = 520M,
-                IncomeTax = 0,
-                SocialTax = 0,
-                TotalTax = 0,
-                NetIncome = 1000M
-            };
+        public static CalculateTaxesResponseModel CalculatedTaxesGrossBellowLimit
+            => new CalculateTaxesResponseModel(1000M, 520M, 0, 0, 0, 1000M);
 
-        public static TaxesResponseModel CalculatedTaxesZeroCharity
-            => new TaxesResponseModel
-            {
-                GrossIncome = 1000M,
-                CharitySpent = 0,
-                IncomeTax = 0,
-                SocialTax = 0,
-                TotalTax = 0,
-                NetIncome = 1000M
-            };
+        public static CalculateTaxesResponseModel CalculatedTaxesZeroCharity
+            => new CalculateTaxesResponseModel(1000M, 0, 0, 0, 0, 1000M);
 
-        public static TaxesResponseModel CalculatedTaxesNullCharity
-            => new TaxesResponseModel
-            {
-                GrossIncome = 1000M,
-                CharitySpent = null,
-                IncomeTax = 0,
-                SocialTax = 0,
-                TotalTax = 0,
-                NetIncome = 1000M
-            };
-
-        public static JurisdictionTaxModel ValidJurisdictionTaxModel
-            => new JurisdictionTaxModel(1000, 0.1M, 0.15M, 3000, 0.1M);
-            
+        public static CalculateTaxesResponseModel CalculatedTaxesNullCharity
+            => new CalculateTaxesResponseModel(1000M, null, 0, 0, 0, 1000M);
     }
 }

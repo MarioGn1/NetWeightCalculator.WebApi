@@ -1,13 +1,15 @@
 {
-  "Jurisdictions": [
-    {
-      "Country": "Imaginaria",
-      "Currency": "IDR",
-      "CharitySpentMaxPercentage": 0.1,
-      "IncomeTax": 0.1,
-      "SocialContributionsTax": 0.15,
-      "SocialContributionsUperLimit": 3000,
-      "TaxFreeAmount": 1000
-    }
-  ] 
+  "TaxRates": {
+    "Jurisdictions": [
+      {
+        "Country": "Imaginaria",
+        "Currency": "IDR",
+        "CharitySpentMaxPercentage": 0.1,
+        "IncomeTax": 0.1,
+        "SocialContributionsTax": 0.15,
+        "SocialContributionsUperLimit": 3000,
+        "TaxFreeAmount": 1000
+      }
+    ]
+  } 
 }

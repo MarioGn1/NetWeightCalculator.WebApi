@@ -10,7 +10,7 @@ namespace NetWeightCalculator.Services.Models
             string fullName, 
             DateTime dateOfBirth, 
             decimal grossIncome,
-            decimal? charitySpent)
+            decimal charitySpent)
         {
             Country = country;
             SSN = sSN;
@@ -25,7 +25,7 @@ namespace NetWeightCalculator.Services.Models
         public string FullName { get; private set; }
         public DateTime DateOfBirth { get; private set; }
         public decimal GrossIncome { get; private set; }
-        public decimal? CharitySpent { get; private set; }
+        public decimal CharitySpent { get; private set; }
 
         public static PayerDto From(
             string country,
@@ -33,7 +33,7 @@ namespace NetWeightCalculator.Services.Models
             string fullName,
             DateTime dateOfBirth,
             decimal grossIncome,
-            decimal? charitySpent)
+            decimal charitySpent)
             => new(country, sSN, fullName, dateOfBirth, grossIncome, charitySpent);
     }
 }

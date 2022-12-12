@@ -1,10 +1,9 @@
-﻿using Xunit;
+﻿using System;
+using Xunit;
 using MyTested.AspNetCore.Mvc;
-using NetWeightCalculator.WebAPI.Controllers;
-using NetWeightCalculator.DTOs.Models;
-
 using static NetWeightCalculator.Test.Mocks.Payer;
-using System;
+using NetWeightCalculator.WebAPI.Models;
+using NetWeightCalculator.WebAPI.Controllers;
 
 namespace NetWeightCalculator.Test.Controllers
 {
@@ -14,7 +13,7 @@ namespace NetWeightCalculator.Test.Controllers
         public void PostCalculateShouldReturnTaxResponceModel()
             => MyController<CalculatorController>
             .Instance()
-            .Calling(x => x.Calculate(ValidPayerDataGrossAndCharityAboveLimits))
+            .Calling(x => x.Calculate(PayerDataGrossAndCharityAboveLimits))
             .ShouldHave()
             .ActionAttributes(attributes => attributes
                     .RestrictingForHttpMethod(HttpMethod.Post))
@@ -22,7 +21,7 @@ namespace NetWeightCalculator.Test.Controllers
             .AndAlso()
             .ShouldReturn()
             .Object(x =>
-                x.WithModelOfType<TaxesResponseModel>());
+                x.WithModelOfType<CalculateTaxesResponseModel>());
 
         [Fact]
         public void PostCalculateShouldReturnBadRequestWhenPayerIsNull()
@@ -33,12 +32,12 @@ namespace NetWeightCalculator.Test.Controllers
             .BadRequest();
 
         [Theory]
-        [InlineData(1234, "Test Testov", "1987-01-20", 3600, 520)]
-        [InlineData(12345, "Test", "1987-01-20", 3600, 520)]
-        [InlineData(12345, "Test Testov", "1987-01-20", 3600.001, 520)]
-        [InlineData(12345, "Test Testov", "1987-01-20", 3600, -1)]
+        [InlineData("1234", "Test Testov", "1987-01-20", 3600, 520)]
+        [InlineData("12345", "Test", "1987-01-20", 3600, 520)]
+        [InlineData("12345", "Test Testov", "1987-01-20", 3600.001, 520)]
+        [InlineData("12345", "Test Testov", "1987-01-20", 3600, -1)]
         public void PostCalculateInvalidModelState(
-            int ssn,
+            string ssn,
             string fullName,
             DateTime dateofBirth,
             decimal grossIncome,
@@ -46,7 +45,7 @@ namespace NetWeightCalculator.Test.Controllers
             => MyController<CalculatorController>
             .Instance()
             .Calling(x =>
-                x.Calculate(new PayerRequestModel
+                x.Calculate(new CalculateTaxesRequestModel
                 {
                     SSN = ssn,
                     FullName = fullName,
@@ -58,9 +57,9 @@ namespace NetWeightCalculator.Test.Controllers
             .InvalidModelState();
 
         [Theory]
-        [InlineData(12345, "Test Testov", "1987-01-20", 3600, 520)]
+        [InlineData("12345", "Test Testov", "1987-01-20", 3600, 520)]
         public void PostCalculateAlreadyExistOrWrongInput(
-            int ssn,
+            string ssn,
             string fullName,
             DateTime dateofBirth,
             decimal grossIncome,
@@ -68,7 +67,7 @@ namespace NetWeightCalculator.Test.Controllers
             => MyController<CalculatorController>
             .Instance()
             .WithMemoryCache(cache => cache
-                .WithEntry(ssn, new PayerRequestModel
+                .WithEntry(ssn, new CalculateTaxesRequestModel
                 {
                     SSN = ssn,
                     FullName = fullName,
@@ -77,7 +76,7 @@ namespace NetWeightCalculator.Test.Controllers
                     CharitySpent = charitySpent
                 }))
             .Calling(x =>
-                x.Calculate(new PayerRequestModel
+                x.Calculate(new CalculateTaxesRequestModel
                 {
                     SSN = ssn,
                     FullName = "Test Testo",

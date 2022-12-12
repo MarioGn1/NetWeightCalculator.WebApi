@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NetWeightCalculator.Services.Models;
 using System;
 
 namespace NetWeightCalculator.WebAPI.Configuration
@@ -18,5 +20,16 @@ namespace NetWeightCalculator.WebAPI.Configuration
                     .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
                     .AddJsonFile("taxrates.json", true, true);
             };
+
+        internal static IServiceCollection SetUpTaxRates(this IServiceCollection services, IConfiguration configuration)
+        {
+            var taxSettingsConfig = configuration.GetSection("TaxRates");
+            services.Configure<TaxRates>(taxSettingsConfig);
+
+            var taxRates = taxSettingsConfig.Get<TaxRates>();
+            services.AddSingleton(taxRates);
+
+            return services;
+        }
     }
 }

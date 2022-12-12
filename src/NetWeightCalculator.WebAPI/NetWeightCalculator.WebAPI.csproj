@@ -8,6 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="11.4.0" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.2.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.17" NoWarn="NU1605" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.17" NoWarn="NU1605" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
@@ -15,8 +17,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\NetWeightCalculator.DTOs\NetWeightCalculator.DTOs.csproj" />
 		<ProjectReference Include="..\NetWeightCalculator.Services\NetWeightCalculator.Services.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Update="taxrates.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 </Project>

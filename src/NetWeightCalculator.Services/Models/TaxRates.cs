@@ -2,14 +2,19 @@
 
 namespace NetWeightCalculator.Services.Models
 {
-    public sealed record TaxRates(IReadOnlyCollection<Jurisdiction> Jurisdictions);
+    public sealed class TaxRates
+    {
+        public Jurisdiction[] Jurisdictions { get; set; }
+    }
 
-    public sealed record Jurisdiction(
-        string Country,
-        string Currency,
-        decimal CharitySpentMaxPercentage,
-        decimal IncomeTax,
-        decimal SocialContributionsTax,
-        decimal SocialContributionsUperLimit,
-        decimal TaxFreeAmount);
+    public sealed class Jurisdiction
+    {
+        public string Country { get; set; }
+        public string Currency { get; set; }
+        public decimal CharitySpentMaxPercentage { get; set; }
+        public decimal IncomeTax { get; set; }
+        public decimal SocialContributionsTax { get; set; }
+        public decimal SocialContributionsUperLimit { get; set; }
+        public decimal TaxFreeAmount { get; set; }
+    }
 }
