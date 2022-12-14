@@ -8,7 +8,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using NetWeightCalculator.Services.CalculatorServices;
 using NetWeightCalculator.Services.MemoryCacheServices;
-using NetWeightCalculator.Services.Models;
 using NetWeightCalculator.WebAPI.Configuration;
 using NetWeightCalculator.WebAPI.Models.Validators;
 
@@ -53,9 +52,7 @@ namespace NetWeightCalculator.WebAPI
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

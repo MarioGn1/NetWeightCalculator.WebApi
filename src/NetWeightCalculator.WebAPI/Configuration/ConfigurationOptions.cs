@@ -6,9 +6,9 @@ using System;
 
 namespace NetWeightCalculator.WebAPI.Configuration
 {
-    internal static class ConfigurationOptions
+    public static class ConfigurationOptions
     {
-        internal static Action<HostBuilderContext, IConfigurationBuilder> SetUpConfiguration()
+        public static Action<HostBuilderContext, IConfigurationBuilder> SetUpConfiguration()
             => (hostingContext, configuration) =>
             {
                 configuration.Sources.Clear();

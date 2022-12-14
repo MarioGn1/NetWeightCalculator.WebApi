@@ -19,9 +19,11 @@ namespace NetWeightCalculator.WebAPI.Models.Validators
                 .WithMessage(FULL_NAME_VALIDATION_ERROR);
             RuleFor(m => m.GrossIncome)
                 .NotEmpty()
+                .GreaterThan(0)
                 .PrecisionScale(DEFAULT_PRECISION, DEFAULT_SCALE, IGNORE_TRAILING_ZEROES)
                 .WithMessage(GROSS_INCOME_VALIDATION_ERROR);
-            RuleFor(m => m.GrossIncome)
+            RuleFor(m => m.CharitySpent)
+                .GreaterThan(-1)
                 .PrecisionScale(DEFAULT_PRECISION, DEFAULT_SCALE, IGNORE_TRAILING_ZEROES)
                 .WithMessage(CHARITY_SPENT_VALIDATION_ERROR);
         }

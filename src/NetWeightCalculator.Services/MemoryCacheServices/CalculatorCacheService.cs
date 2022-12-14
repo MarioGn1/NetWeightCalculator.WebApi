@@ -6,21 +6,21 @@ namespace NetWeightCalculator.Services.MemoryCacheServices
 {
     public class CalculatorCacheService : ICalculatorCacheService
     {
-        private readonly IMemoryCache cache;
+        private readonly IMemoryCache _cache;
 
         public CalculatorCacheService(IMemoryCache cache)
         {
-            this.cache = cache;
+            _cache = cache;
         }
 
         public bool IsExistentPayer(IdentityCacheKey cacheKey)
-            => this.cache.TryGetValue(cacheKey, out var _);
+            => _cache.TryGetValue(cacheKey, out var _);
 
         public void SetPayerIdentity(IdentityCacheKey cacheKey)
-            => this.cache.Set<object>(cacheKey, null);
+            => _cache.Set<object>(cacheKey, null);
 
         public TaxesDto GetTaxes(TaxesCalculationCacheKey cacheKey)
-            => this.cache.TryGetValue(cacheKey, out TaxesDto payerCacheModel)
+            => _cache.TryGetValue(cacheKey, out TaxesDto payerCacheModel)
                 ? payerCacheModel
                 : null;
 
@@ -29,7 +29,7 @@ namespace NetWeightCalculator.Services.MemoryCacheServices
             var cacheOptions = new MemoryCacheEntryOptions()
                     .SetAbsoluteExpiration(TimeSpan.FromMinutes(15));
 
-            this.cache.Set(cacheKey, payerCacheModel, cacheOptions);
+            _cache.Set(cacheKey, payerCacheModel, cacheOptions);
         }
     }
 }

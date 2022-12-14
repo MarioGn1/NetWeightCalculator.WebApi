@@ -5,22 +5,22 @@ using NetWeightCalculator.Services.Models;
 
 namespace NetWeightCalculator.WebAPI.Controllers
 {
-    [Route("[controller]")]
+    [Route("calculator")]
     [ApiController]
     public class CalculatorController : ControllerBase
     {
-        private readonly ICalculatorService calculatorService;
+        private readonly ICalculatorService _calculatorService;
 
         public CalculatorController(ICalculatorService calculatorService)
         {
-            this.calculatorService = calculatorService;
+            _calculatorService = calculatorService;
         }
 
         [HttpPost]
         [Route("calculate")]
         public ActionResult<CalculateTaxesResponseModel> Calculate(CalculateTaxesRequestModel request)
         {
-            var result = calculatorService.Calculate(PayerDto.From(
+            var result = _calculatorService.Calculate(PayerDto.From(
                 request.Country,
                 request.SSN,
                 request.FullName,

@@ -1,5 +1,4 @@
-﻿using NetWeightCalculator.Services.Models;
-using NetWeightCalculator.WebAPI.Models;
+﻿using NetWeightCalculator.WebAPI.Models;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -28,7 +27,7 @@ namespace NetWeightCalculator.Test.Mocks
             };
             yield return new object[]
             {
-                ValidPayerDataNullCharity,
+                ValidPayerDataZeroCharity,
                 CalculatedTaxesNullCharity
             };
             yield return new object[]
@@ -38,7 +37,7 @@ namespace NetWeightCalculator.Test.Mocks
             };
             yield return new object[]
             {
-                ValidPayerDataGrossBellowLimitsCharityNull,
+                ValidPayerDataGrossBellowLimitsZeroCharity,
                 CalculatedTaxesGrossBellowLimitsCharityNull
             };
         }
@@ -55,7 +54,7 @@ namespace NetWeightCalculator.Test.Mocks
             => new CalculateTaxesResponseModel(2500M, 150M, 135.00M, 202.50M, 337.50M, 2162.50M);
 
         public static CalculateTaxesResponseModel CalculatedTaxesGrossBellowLimitsCharityNull
-            => new CalculateTaxesResponseModel(2500M, null, 150.00M, 225.00M, 375.00M, 2125.00M);
+            => new CalculateTaxesResponseModel(2500M, 0, 150.00M, 225.00M, 375.00M, 2125.00M);
 
         public static CalculateTaxesResponseModel CalculatedTaxesGrossBellowLimit
             => new CalculateTaxesResponseModel(1000M, 520M, 0, 0, 0, 1000M);
@@ -64,6 +63,6 @@ namespace NetWeightCalculator.Test.Mocks
             => new CalculateTaxesResponseModel(1000M, 0, 0, 0, 0, 1000M);
 
         public static CalculateTaxesResponseModel CalculatedTaxesNullCharity
-            => new CalculateTaxesResponseModel(1000M, null, 0, 0, 0, 1000M);
+            => new CalculateTaxesResponseModel(1000M, 0, 0, 0, 0, 1000M);
     }
 }

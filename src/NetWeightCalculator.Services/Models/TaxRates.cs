@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NetWeightCalculator.Services.Models
+﻿namespace NetWeightCalculator.Services.Models
 {
     public sealed class TaxRates
     {

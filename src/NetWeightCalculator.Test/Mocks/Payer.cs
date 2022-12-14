@@ -7,7 +7,7 @@ namespace NetWeightCalculator.Test.Mocks
     public static class Payer
     {
         public static CalculateTaxesRequestModel PayerDataGrossAndCharityAboveLimits
-            => new CalculateTaxesRequestModel
+            => new()
             {
                 SSN = "11111",
                 FullName = "Test Testov",
@@ -18,6 +18,9 @@ namespace NetWeightCalculator.Test.Mocks
 
         public static PayerDto ValidPayerDataGrossAndCharityAboveLimits
             => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 3600, 520);
+        
+        public static PayerDto InvalidPayerDataGrossAndCharityAboveLimits
+            => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 3600, -520);
 
         public static PayerDto ValidPayerDataGrossBellowLimits
             => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 1000, 520);
@@ -25,13 +28,10 @@ namespace NetWeightCalculator.Test.Mocks
         public static PayerDto ValidPayerDataZeroCharity
             => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 1000, 0);
 
-        public static PayerDto ValidPayerDataNullCharity
-            => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 1000, null);
-
         public static PayerDto ValidPayerDataGrossAndCharityBellowLimits
             => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 2500, 150);
 
-        public static PayerDto ValidPayerDataGrossBellowLimitsCharityNull
-            => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 2500, null);
+        public static PayerDto ValidPayerDataGrossBellowLimitsZeroCharity
+            => PayerDto.From("Imaginaria", "11111", "Test Testov", DateTime.Parse("1987-01-20"), 2500, 0);
     }
 }
