@@ -1,62 +1,49 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NetWeightCalculator.Services.CalculatorServices;
-using System.Globalization;
+using NetWeightCalculator.Services.MemoryCacheServices;
+using NetWeightCalculator.WebAPI.Configuration;
+using NetWeightCalculator.WebAPI.Models.Validators;
 
 namespace NetWeightCalculator.WebAPI
 {
     public class Startup
     {
+        private readonly IConfiguration _configuration;
+
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddLocalization(options => options.ResourcesPath = "Resources");
+                .SetUpTaxRates(_configuration)
+                .AddControllers();
 
             services
-                .Configure<RequestLocalizationOptions>(options =>
-                {
-                    var supportedCultures = new[]
+                .AddFluentValidationAutoValidation()
+                .AddValidatorsFromAssemblyContaining<PayerRequestModelValidator>()
+                .AddSwaggerGen(c =>
                     {
-                                    new CultureInfo("en"),
-                                    new CultureInfo("bg")
-                    };
+                        c.SwaggerDoc("v1", new OpenApiInfo { Title = "NetWeightCalculator.WebAPI", Version = "v1" });
+                    })
+                .AddMemoryCache();
 
-                    options.DefaultRequestCulture = new RequestCulture(culture: "en-US", uiCulture: "en-US");
-
-                    options.SupportedCultures = supportedCultures;
-
-                    options.SupportedUICultures = supportedCultures;
-                });
-
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "NetWeightCalculator.WebAPI", Version = "v1" });
-            });
-
-            services.AddMemoryCache();
-
-            services.AddTransient<ICalculatorService, CalculatorService>();
+            services
+                .AddTransient<ICalculatorService, CalculatorService>()
+                .AddTransient<ICalculatorCacheService, CalculatorCacheService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            var locOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
-            app.UseRequestLocalization(locOptions.Value);
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -65,9 +52,7 @@ namespace NetWeightCalculator.WebAPI
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
